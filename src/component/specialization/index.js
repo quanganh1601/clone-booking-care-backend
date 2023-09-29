@@ -38,6 +38,7 @@ const Specialization = () => {
       image: Nerve
     }
   ];
+  console.log("dfdsf")
 
   return (
     <div className="content-specialization">
