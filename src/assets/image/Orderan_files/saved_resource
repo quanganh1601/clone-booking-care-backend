@@ -1,4 +1,0 @@
-@font-face {
-font-family:'Zawgyi-One';
-src:local('Zawgyi-One'), url('https://www.mmwebfonts.com/fonts/zawgyi.woff') format('woff'), url('https://www.mmwebfonts.com/fonts/zawgyi.ttf') format('ttf');
-}
