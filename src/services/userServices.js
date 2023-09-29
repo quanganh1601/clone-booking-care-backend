@@ -1,7 +1,7 @@
 
 import bcrypt from 'bcryptjs';
 import db from "../models";
-//import bcrypt from 'bcrypt';
+//import bcrypt from 'bcrypt'dd;
 const salt = bcrypt.genSaltSync(10);
 
 const handleUserLogin = (email, password) => {
