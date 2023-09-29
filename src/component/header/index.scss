@@ -1,0 +1,53 @@
+.header-container {
+  padding: 10px 0px;
+  display: flex;
+  justify-content: center;
+
+  .wrapper-header {
+    width: 1170px;
+    padding: 0px 15px;
+    display: flex;
+    flex-direction: row;
+
+    .header-left {
+      width: 75%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .logo {
+        width: 160px;
+        height: 34px;
+      }
+
+      .menu {
+        height: 40px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 44px;
+        padding: 10px 0px 10px 25px;
+
+        .menu-item {
+          display: flex;
+          flex-direction: column;
+
+          .label {
+            font-size: 12px;
+          }
+
+          .discription {
+            font-size: 10px;
+          }
+        }
+      }
+    }
+
+    .header-right {
+      width: 25%;
+      align-items: center;
+      display: flex;
+      justify-content: end;
+    }
+  }
+}

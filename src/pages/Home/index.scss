@@ -1,0 +1,99 @@
+.content-panel {
+  background: url("../../assets/image/backgroud-header.jpeg") center center no-repeat;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  .search-hospital {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.25),rgba(255, 255, 255, 0.1));
+    padding: 45px 0;
+    color: #333;
+    text-align: center;
+    min-height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .wrapper {
+      width: 1170px;
+      height: 100px;
+
+      >h1 {
+        color: #FFF;
+      }
+
+      .search-form {
+        min-height: 15vh;
+        width: 40%;
+        min-width: 300px;
+        margin: auto;
+
+        .ant-input-affix-wrapper {
+          height: 50px;
+          border-radius: 25px;
+          background-color: #f7d800;
+
+          .ant-input-prefix {
+            width: 39px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .ant-input {
+            background-color: #f7d800;
+          }
+        }
+
+        .ant-input-group-addon {
+          display: none;
+        }
+      }
+
+      .down-app {
+        margin-top: 15px;
+        padding-top: 25px;
+
+        .icon-down-app {
+          width: 108px;
+          height: 32px;
+        }
+      }
+    }
+  }
+
+  .customize-option {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1),rgba(255, 255, 255, 0.9),rgba(255, 255, 255, 1));
+    padding-top: 30px;
+    padding-bottom: 20px;
+    height: 172px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .box-option {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-width: 150px;
+      padding: 5px;
+      gap: 5px;
+
+      .option-img {
+        height: 50px;
+        width: 50px;
+        background: url("../../assets/image/hospital.png");
+        background-size: 32px !important;
+        border-radius: 50%;
+        background-size: cover;
+        background-color: #fff;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin: 2px;
+      }
+    }
+  }
+}

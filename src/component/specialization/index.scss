@@ -1,0 +1,27 @@
+.content-specialization {
+  padding: 30px 20px;
+  background-color: #f5f5f5;
+
+  .title-spec {
+    text-align: left;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .image {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  
+    .box-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      > img {
+        height: 156px;
+      }
+    }
+  }
+}
