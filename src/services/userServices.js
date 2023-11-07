@@ -1,42 +1,47 @@
-
 import bcrypt from 'bcryptjs';
 import db from "../models";
-//import bcrypt from 'bcrypt'dddd;
-const salt = bcrypt.genSaltSync(10);
+import tools from "../../src/tools/index";
 
+const salt = bcrypt.genSaltSync(10);
 const handleUserLogin = (email, password) => {
     return new Promise(async(resolve, reject) => {
-        try {
-            let userData = {};
-            let isExits = await checkUserEmail(email);
-            if (isExits) {
-                const user = await db.User.findOne({
-                    where: { email: email },
-                    attributes: ["email", "password", "roleId"],
-                    raw: true
-                })
-                if (user) {
-                    const match = await bcrypt.compareSync(password, user.password);
-                    if (match) {
-                        userData.errCode = 0,
-                        userData.errMessage = "login susscess !",
-                        delete user.password;
-                        userData.user = user
-                    } else {
-                        userData.errCode = 5
-                    }
-                } else {
-                    userData.errCode = 3,
-                    userData.errMessage = "user not found  !!"
-                }
+      try {
+          let userData = {};
+          let isExits = await checkUserEmail(email);
+          if (isExits) {
+            const user = await db.User.findOne({
+                where: { email: email },
+                attributes: ["id", "email", "password", "roleId", "lastName", "firstName"],
+                raw: true
+            })
+            if (user) {
+                const match = await bcrypt.compareSync(password, user.password);
+                if (match) {
+                  const token = tools.gennerateToken({id: user.id}, "password", '360day');
+                  const refreshToken = tools.gennerateRefreshToken({id: user.id}, "refresToken", '1day');
+                  
+                  userData.success = true;
+                  delete user.password;
+                  userData.user = {
+                    ...user,
+                    token,
+                    refreshToken
+                  }
+                } else
+                  userData.errCode = 5
             } else {
-                userData.errCode = 1;
-                userData.errMessage = `email is not system !`
+                userData.errCode = 3,
+                userData.errMessage = "user not found  !!"
             }
-            resolve(userData);
-        } catch (error) {
-            reject(error);
-        }
+          } else {
+              userData.errCode = 1;
+              userData.errMessage = `email is not system !`
+          }
+        
+        resolve(userData);
+      } catch (error) {
+          reject(error);
+      }
     })
 }
 
@@ -55,70 +60,68 @@ const checkUserEmail = (userEmail) => {
 }
 
 const hashUserPassWord = (password) => {
-    return new Promise(async(resolve, reject) => {
-        try {
-            let hashPassWord = await bcrypt.hashSync(password, salt);
-            resolve(hashPassWord);
-        } catch(e) {
-            reject(e);
-        }
-    })
-}
-
-const getAllUser = () => {
   return new Promise(async(resolve, reject) => {
     try {
-      let user = '';
-        user = await db.User.findAll({
-          attributes: {
-            exclude: ["password"]
-          },
-         // limit: 1
-        });
-        console.log("user", user)
-      resolve(user);
-    } catch (error) {
-      reject(error);
+      let hashPassWord = await bcrypt.hashSync(password, salt);
+      resolve(hashPassWord);
+    } catch(e) {
+      reject(e);
     }
   })
 }
 
+const getAllUser = (params) => {
+  const { limit, page } = params;
+  return new Promise((resolve, reject) => {
+    db.User.findAll({
+      attributes: { exclude: ["password"]},
+      order: [["createdAt", "DESC"]],
+      limit: +limit,
+      offset: ((+page - 1) * +limit),
+      include: [
+        { model: db.Allcodes, as: "data_position" },
+        { model: db.Allcodes, as: "data_gender" }
+      ],
+      raw: true,
+      nest: true
+    })
+    .then((data) => resolve({ data, success: true }))
+    .catch((error) => reject({ error, success: false }))
+  })
+}
+
 const createNewUser = (data) => {
+  const { email, firstName, lastName, address, gender, roleId, phoneNumber, positionId, image, password } = data;
   return new Promise(async(resolve, reject) => {
     try {
-      if (!data.email) {
-        resolve({
-          errCode: 1,
-          errMessage: "email not empty!"
-        })
-      }
-      const checkEmail = await checkUserEmail(data.email);
-      if (checkEmail == true) {
-        resolve({
-          errCode: 1,
-          errMessage: "Your email already in used, plz try another email !"
-        })
-      }
-      const hashPassWordFromBcrypt = await hashUserPassWord(data.password);
+      if (!data.email)
+        reject({
+          success: false,
+          message: "email not empty!"
+        });
+
+      const checkEmail = await checkUserEmail(email);
+      if (checkEmail == true)
+        reject({
+          success: false,
+          message: "Your email already in used, plz try another email !"
+        });
+
+      const hashPassWordFromBcrypt = await hashUserPassWord(password);
       await db.User.create({
         password: hashPassWordFromBcrypt,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        address: data.address,
-        gender: data.gender == '1' ? true : false,
-        roleId: data.roleId,
-        phoneNumber: data.phoneNumber,
-        positionId: data.positionId,
-        image: data.image
-    })
-    resolve({
-      errCode: 0,
-      errMessage: "create user success !",
-      user: data
-    });
-    } catch (error) {
-      reject(error);
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        address: address,
+        gender: gender,
+        roleId: roleId,
+        phoneNumber: phoneNumber,
+        positionId: positionId,
+        image: image
+      }).then((data) => resolve({ data, success: true  }))
+    } catch(error) {
+      reject({ error: error, success: true  })
     }
   })
 }
@@ -133,7 +136,6 @@ const getAllCode = () => {
         data
       })
     } catch (error) {
-      console.log("err", error)
       reject(error)
     }
   })
@@ -169,39 +171,16 @@ const deleteUser = (userId) => {
 };
 
 const editUser = (req) => {
-  const { id, email, firstName, lastName, address } = req.body;
-  let message;
+  const { id, email, firstName, lastName, address, image, gender, phoneNumber, positionId } = req.body;
   return new Promise((reslove, reject) => {
     try {
-      db.User.update({
-        email,
-        firstName,
-        lastName,
-        address
-      }, {
-        where: {
-          id: id
-        }
+      db.User.update({ id, email, firstName, lastName, address, image, gender, phoneNumber, positionId }, {
+        where: { id: id }
       })
-      .then((result) => {
-        if (result > 0) message = "update successly!"
-        else message = "update error!"
-        reslove({
-          errCode: 0,
-          message
-        })
-      })
-      .catch((err)=> {
-        reject({
-          errCode: 1,
-          errMessage: "error"
-        })
-      })
-    } catch(err) {
-      reject({
-        errCode: 2,
-        err
-      })
+      .then(() => reslove({ success: true }))
+      .catch((error)=> reject({ error, success: false }))
+    } catch(error) {
+      reject({ error, success: false });
     }
   })
 };

@@ -1,30 +1,21 @@
 import db from "../models";
 const getDetailDoctorById = (doctorId) => {
   return new Promise((resolve, reject) => {
-    try {
-      if (!doctorId) {
-        resolve({
-          errCode: 1,
-          errMessage: "missing required params ?"
-        })
-      } else {
-        db.User.findOne({
-          where: { id: 7 },
-          attributes: {
-            exclude: ["password"]
-          },
-          include: [
-            { model: db.Allcodes, as: "posionData" },
-            { model: db.Allcodes, as: "genderData" }
-          ],
-          raw: true,
-          nest: true
-        }).then((res) => resolve(res))
-          .catch((err) => console.log("err", err))
-      }
-    } catch (error) {
-      reject(error);
-    }
+    if (!doctorId)
+      return reject({ message: "Not exist doctor!", success: false });
+
+    db.User.findOne({
+      where: { id: doctorId },
+      attributes: { exclude: ["password"]},
+      include: [
+        { model: db.Allcodes, as: "data_position" },
+        { model: db.Allcodes, as: "data_gender" }
+      ],
+      raw: true,
+      nest: true
+    })
+    .then((res) => resolve(res))
+    .catch((error) => reject({ error, success: false }))
   })
 }
 
@@ -66,31 +57,28 @@ const getTopDoctorHome = (limit) => {
   return new Promise(async(reslove, reject) => {
     try {
       if (!limit) limit = 10;
-      const doctor = await db.User.findAll({
-        where: {
-          roleId: "R2"
-        },
+      await db.User.findAll({
+        where: { roleId: "R2" },
         limit: limit,
         order: [['createdAt', 'DESC']],
-        attributes: {
-          exclude: "password"
-        }
-      });
-      reslove({
-        errCode: 0,
-        data: doctor
+        attributes: { exclude: ["password", "image"] },
+        include: [
+          { model: db.Allcodes, as: "data_position" },
+          { model: db.Allcodes, as: "data_gender" }
+        ],
+        raw: true,
+        nest: true
       })
+      .then((data) => reslove({ data: data, success: true }))
+      .catch((error) => reject({ error: error, success: false }))
     } catch (error) {
-      reject({
-        errCode: 1,
-        errMessage: "server error ...!"
-      })
+      reject({ success: false, message: "server error ...!"})
     }
   })
 }
 
 module.exports = {
-    getDetailDoctorById: getDetailDoctorById,
-    getDetailDoctorByIds: getDetailDoctorByIds,
-    getTopDoctorHome: getTopDoctorHome
+  getDetailDoctorById: getDetailDoctorById,
+  getDetailDoctorByIds: getDetailDoctorByIds,
+  getTopDoctorHome: getTopDoctorHome
 }

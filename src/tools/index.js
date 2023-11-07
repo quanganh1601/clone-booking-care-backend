@@ -10,5 +10,4 @@ const tools = {
     return refreshoken;
   }
 };
-
 module.exports = tools;
