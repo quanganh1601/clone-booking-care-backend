@@ -30,25 +30,15 @@ const getDetailDoctorByIds = (userId) => {
       } else {
         const data = await db.Markdown.findOne({
           where: { id: userId },
-          attributes: {
-            exclude: ["password"]
-          },
-          include: [
-            { model: db.User }
-          ],
+          attributes: { exclude: ["password"] },
+          include: [{ model: db.User }],
           raw: true,
           nest: true
         })
-        resolve({
-          errCode: 0,
-          data
-        });
+        resolve({ errCode: 0, data });
       }
     } catch (error) {
-      reject({
-        errCode: 1,
-        error
-      })
+      reject({ errCode: 1, error })
     }
   })
 }
